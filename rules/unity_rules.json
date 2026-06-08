@@ -1,0 +1,81 @@
+{
+  "version": "0.1.1",
+  "rules": [
+    {
+      "id": "U001",
+      "name": "Update 中疑似频繁 GetComponent",
+      "severity": "HIGH",
+      "description": "在 Update、LateUpdate 或 FixedUpdate 中调用 GetComponent 可能造成每帧组件查找开销。该命中需要确认调用频率和是否已有缓存策略。",
+      "patterns": [
+        "GetComponent\\s*<",
+        "GetComponentInChildren\\s*<",
+        "GetComponentInParent\\s*<"
+      ],
+      "scope_check": [
+        "Update",
+        "LateUpdate",
+        "FixedUpdate"
+      ],
+      "suggestion": "优先在 Awake 或 Start 中缓存组件引用，并在高频逻辑中复用缓存。"
+    },
+    {
+      "id": "U002",
+      "name": "帧循环中疑似使用 LINQ",
+      "severity": "WARNING",
+      "description": "LINQ 在 Unity 帧循环中可能产生 GC 分配或隐藏迭代成本。该命中需要确认集合规模、调用频率，以及是否确实是 LINQ-to-objects 而非反应式库操作符。",
+      "patterns": [
+        "\\.Where\\s*\\(",
+        "\\.Select\\s*\\(",
+        "\\.ToList\\s*\\(",
+        "\\.FirstOrDefault\\s*\\("
+      ],
+      "scope_check": [
+        "Update",
+        "LateUpdate",
+        "FixedUpdate"
+      ],
+      "file_exclusion_patterns": [
+        "using\\s+R3\\s*;",
+        "using\\s+UniRx\\s*;"
+      ],
+      "suggestion": "在帧循环中考虑改为显式循环、缓存结果，或改为只在数据变化时重新计算。若是 R3/UniRx 反应式链，应按响应式生命周期审查而不是按 LINQ-to-objects 审查。"
+    },
+    {
+      "id": "U003",
+      "name": "疑似事件注册，需检查解绑",
+      "severity": "HIGH",
+      "description": "发现 AddListener 或 += 事件注册。若生命周期结束时未解绑，可能导致重复回调、内存引用残留或访问已销毁对象。",
+      "patterns": [
+        "AddListener\\s*\\(",
+        "[A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)*\\s*\\+=\\s*(?:[A-Za-z_][A-Za-z0-9_]*(?:\\.[A-Za-z_][A-Za-z0-9_]*)?|[^;]*=>[^;]*)"
+      ],
+      "suggestion": "检查 OnDisable 或 OnDestroy 中是否存在对应 RemoveListener 或 -=。匿名委托尤其需要谨慎。"
+    },
+    {
+      "id": "U004",
+      "name": "疑似 Resources.Load 使用",
+      "severity": "WARNING",
+      "description": "Resources.Load 可能让资源管理、包体控制和释放策略变得不透明。该命中需要确认是否有缓存和生命周期管理。",
+      "patterns": [
+        "Resources\\.Load",
+        "Resources\\.LoadAsync"
+      ],
+      "suggestion": "确认是否必须使用 Resources。若项目使用 Addressables 或自定义资源系统，应优先遵循统一资源加载策略。"
+    },
+    {
+      "id": "U005",
+      "name": "疑似 Addressables 加载，需检查释放策略",
+      "severity": "WARNING",
+      "description": "发现 Addressables 加载调用，但当前文件未发现明显 Release 痕迹。该结果可能误报，因为释放可能由统一资源管理器负责。",
+      "patterns": [
+        "Addressables\\.Load",
+        "LoadAssetAsync\\s*<"
+      ],
+      "release_patterns": [
+        "Addressables\\.Release",
+        "Addressables\\.ReleaseInstance"
+      ],
+      "suggestion": "确认资源句柄或实例是否在合适生命周期中释放，或说明由统一资源管理模块托管。"
+    }
+  ]
+}
