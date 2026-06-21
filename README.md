@@ -144,3 +144,8 @@ unity-code-review-agent-v0/
 ## License
 
 MIT License. See [LICENSE](LICENSE).
+
+## Related
+
+- [hermes-harness](https://github.com/YIMO691/hermes-harness) — Agent 工作线，含 unity-gc-scanner MCP 工具
+- [unity-verification-projects](https://github.com/YIMO691/unity-verification-projects) — 历史 Unity 验证项目
