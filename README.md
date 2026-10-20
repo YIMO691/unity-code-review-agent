@@ -1,3 +1,5 @@
+> **Status: archived (2026-10-20).** This v0 tool is no longer developed. For AI-assisted change review, see [aeh-change-lens](https://github.com/YIMO691/aeh-change-lens).
+
 # unity-code-review-agent-v0
 
 A minimal Unity C# static review tool for interview teaching and manual review practice.
